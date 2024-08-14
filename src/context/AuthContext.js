@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         setLoading(true);
-        const response = await fetch(`${API_URL}/login`, {
+        const response = await fetch(`${API_URL}/users/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(credentials),
@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
         if (response.ok) {
             const userData = await response.json();
+            localStorage.setItem('token', userData?.token);
             localStorage.setItem('users', JSON.stringify(userData?.user));
             navigate('/dashboard');
             setUser(userData);

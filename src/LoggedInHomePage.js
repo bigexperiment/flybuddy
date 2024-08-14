@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Search, Users, Shield, Plane, MapPin, Calendar, User, Bell, MessageSquare, Plus, X } from 'lucide-react';
 import { AuthHeader } from './layouts/AuthHeader';
 import { AuthContext } from './context/AuthContext';
+import { createFlight, getAllFlight } from './api';
 
 // Mock API functions (replace with actual API calls in production)
 const getFlights = () => Promise.resolve([
@@ -12,6 +13,8 @@ const getFlights = () => Promise.resolve([
 
 const addFlight = (flightDetails) => {
     console.log("Flight added:", flightDetails);
+
+
     return Promise.resolve({ ...flightDetails, id: Date.now() });
 };
 
@@ -79,19 +82,32 @@ const MyFlightsTab = ({ flights, allFlights }) => (
     <div>
         <h2 className="text-2xl font-bold text-gray-800 mb-6">My Flights</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* {allFlights.map(flight => (
+                <FlightCard key={flight.id} flight={flight} />
+            ))} */}
             {flights.map(flight => (
-                <div key={flight.id}>
+                <div key={flight._id}>
                     <FlightCard flight={flight} showConnect={false} />
                     {allFlights.some(f =>
-                        f.id !== flight.id &&
-                        f.flightNumber === flight.flightNumber &&
-                        f.departure === flight.departure &&
-                        f.arrival === flight.arrival &&
-                        f.date === flight.date
-                    ) && (
-                            <div className="mt-2 p-2 bg-yellow-100 text-yellow-800 rounded">
-                                This flight matches with another user!
-                            </div>
+                        f._id !== flight._id &&
+                        f.flightNumber.toLowerCase() == flight.flightNumber.toLowerCase() &&
+                        f.departure.toLowerCase() == flight.departure.toLowerCase() &&
+                        f.arrival.toLowerCase() == flight.arrival.toLowerCase() &&
+                        f.date == flight.date
+                    ) && (<>
+                        <div className="mt-2 p-2 bg-yellow-100 text-yellow-800 rounded">
+                            This flight matches with another user!
+                        </div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6 mt-6">Matched Flights</h2>
+                        {allFlights.filter(f =>
+                            f._id !== flight._id &&
+                            f.flightNumber.toLowerCase() == flight.flightNumber.toLowerCase() &&
+                            f.departure.toLowerCase() == flight.departure.toLowerCase() &&
+                            f.arrival.toLowerCase() == flight.arrival.toLowerCase() &&
+                            f.date == flight.date
+                        ).map(f => <FlightCard flight={f} showConnect={false} />)}
+
+                    </>
                         )}
                 </div>
             ))}
@@ -313,8 +329,8 @@ const LoggedInHomePage = () => {
 
     const fetchFlights = async () => {
         try {
-            const flightData = await getFlights();
-            setFlights(flightData);
+            const flightData = await getAllFlight();
+            setFlights(flightData?.result);
         } catch (error) {
             console.error("Failed to fetch flights:", error);
         }
@@ -322,8 +338,10 @@ const LoggedInHomePage = () => {
 
     const handleAddFlight = async (flightDetails) => {
         try {
-            const newFlight = await addFlight(flightDetails);
-            setFlights([...flights, newFlight]);
+            //const newFlight = await addFlight(flightDetails);
+            await createFlight(flightDetails);
+            await getAllFlight();
+            //  setFlights([...flights, newFlight]);
             setShowAddFlightForm(false);
         } catch (error) {
             console.error("Failed to add flight:", error);
@@ -333,11 +351,11 @@ const LoggedInHomePage = () => {
     const renderTabContent = () => {
         switch (activeTab) {
             case 'Offering':
-                return <OfferingTab flights={flights.filter(f => f.status === 'offering')} />;
+                return <OfferingTab flights={flights.filter(f => f.status === 'offering' && f.userId != user?._id)} />;
             case 'Seeking':
-                return <SeekingTab flights={flights.filter(f => f.status === 'seeking')} />;
+                return <SeekingTab flights={flights.filter(f => f.status === 'seeking' && f.userId != user?._id)} />;
             case 'My Flights':
-                return <MyFlightsTab flights={flights.filter(f => f.name === user?.name)} allFlights={flights} />;
+                return <MyFlightsTab flights={flights.filter(f => f.userId === user?._id)} allFlights={flights} />;
             case 'Messages':
                 return <MessagesTab />;
             case 'Profile':
@@ -349,7 +367,7 @@ const LoggedInHomePage = () => {
 
     return (
         <div className="min-h-screen bg-gray-100">
-           <AuthHeader/>
+            <AuthHeader />
 
             <main className="container mx-auto px-6 py-8">
                 <div className="mb-8">

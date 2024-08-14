@@ -1,7 +1,7 @@
-export const API_URL = 'http://localhost:5000/api/users';
+export const API_URL = 'http://localhost:5000/api';
 
 export const signup = async (userData) => {
-    const response = await fetch(`${API_URL}/signup`, {
+    const response = await fetch(`${API_URL}/users/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),
@@ -11,13 +11,26 @@ export const signup = async (userData) => {
     return data;
 };
 
-export const login = async (credentials) => {
-    const response = await fetch(`${API_URL}/login`, {
+export const createFlight = async (payload) => {
+    const response = await fetch(`${API_URL}/flights/create`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+        body: JSON.stringify(payload),
     });
     const data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Login failed');
+    if (!response.ok) throw new Error(data.error || 'Flight creating failed');
+    return data;
+};
+
+export const getAllFlight = async (payload) => {
+    const response = await fetch(`${API_URL}/flights/getAll`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Flight fetching failed');
     return data;
 };
