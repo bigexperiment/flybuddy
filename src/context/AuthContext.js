@@ -23,10 +23,10 @@ export const AuthProvider = ({ children }) => {
             const userData = await response.json();
             localStorage.setItem('token', userData?.token);
             localStorage.setItem('users', JSON.stringify(userData?.user));
+            setUser(userData?.user);
             navigate('/dashboard');
-            setUser(userData);
         } else {
-            throw new Error('Login failed');
+            throw response;
         }
     };
 
@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         navigate('/');
         localStorage.setItem('users', null);
+        localStorage.setItem('token', null);
     };
 
     useEffect(() => {

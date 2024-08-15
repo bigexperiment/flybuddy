@@ -3,6 +3,9 @@ import { Search, Users, Shield, Plane, MapPin, Calendar, User, Bell, MessageSqua
 import { AuthHeader } from './layouts/AuthHeader';
 import { AuthContext } from './context/AuthContext';
 import { createFlight, getAllFlight } from './api';
+import FlightCard from './components/FlightCard';
+import MyFlightsTab from './components/MyFlightTab';
+import MessagesTab from './components/MessageTab';
 
 // Mock API functions (replace with actual API calls in production)
 const getFlights = () => Promise.resolve([
@@ -17,44 +20,6 @@ const addFlight = (flightDetails) => {
 
     return Promise.resolve({ ...flightDetails, id: Date.now() });
 };
-
-
-const FlightCard = ({ flight, showConnect = true }) => (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-2">
-                <h3 className="font-bold text-xl">{flight.name}, {flight.age}</h3>
-                <span className={`px-2 py-1 rounded text-sm ${flight.status === 'offering' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                    }`}>
-                    {flight.status === 'offering' ? 'Offering' : 'Seeking'}
-                </span>
-            </div>
-            <div className="flex items-center text-gray-600 mb-2">
-                <Plane className="w-4 h-4 mr-2" />
-                <span>{flight.airline} {flight.flightNumber}</span>
-            </div>
-            <div className="flex items-center text-gray-600 mb-2">
-                <MapPin className="w-4 h-4 mr-2" />
-                <span>{flight.departure} to {flight.arrival}</span>
-            </div>
-            <div className="flex items-center text-gray-600 mb-4">
-                <Calendar className="w-4 h-4 mr-2" />
-                <span>{flight.date}</span>
-            </div>
-            {flight.status === 'offering' && flight.companionPreference && (
-                <p className="text-sm text-gray-600 mb-4">Preference: {flight.companionPreference}</p>
-            )}
-            {flight.status === 'seeking' && flight.additionalInfo && (
-                <p className="text-sm text-gray-600 mb-4">Info: {flight.additionalInfo}</p>
-            )}
-            {showConnect && (
-                <button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
-                    Connect
-                </button>
-            )}
-        </div>
-    </div>
-);
 
 const OfferingTab = ({ flights }) => (
     <div>
@@ -75,50 +40,6 @@ const SeekingTab = ({ flights }) => (
                 <FlightCard key={flight.id} flight={flight} />
             ))}
         </div>
-    </div>
-);
-
-const MyFlightsTab = ({ flights, allFlights }) => (
-    <div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">My Flights</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* {allFlights.map(flight => (
-                <FlightCard key={flight.id} flight={flight} />
-            ))} */}
-            {flights.map(flight => (
-                <div key={flight._id}>
-                    <FlightCard flight={flight} showConnect={false} />
-                    {allFlights.some(f =>
-                        f._id !== flight._id &&
-                        f.flightNumber.toLowerCase() == flight.flightNumber.toLowerCase() &&
-                        f.departure.toLowerCase() == flight.departure.toLowerCase() &&
-                        f.arrival.toLowerCase() == flight.arrival.toLowerCase() &&
-                        f.date == flight.date
-                    ) && (<>
-                        <div className="mt-2 p-2 bg-yellow-100 text-yellow-800 rounded">
-                            This flight matches with another user!
-                        </div>
-                        <h2 className="text-2xl font-bold text-gray-800 mb-6 mt-6">Matched Flights</h2>
-                        {allFlights.filter(f =>
-                            f._id !== flight._id &&
-                            f.flightNumber.toLowerCase() == flight.flightNumber.toLowerCase() &&
-                            f.departure.toLowerCase() == flight.departure.toLowerCase() &&
-                            f.arrival.toLowerCase() == flight.arrival.toLowerCase() &&
-                            f.date == flight.date
-                        ).map(f => <FlightCard flight={f} showConnect={false} />)}
-
-                    </>
-                        )}
-                </div>
-            ))}
-        </div>
-    </div>
-);
-
-const MessagesTab = () => (
-    <div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Messages</h2>
-        <p>Your messages will appear here.</p>
     </div>
 );
 

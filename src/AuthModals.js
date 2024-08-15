@@ -11,7 +11,7 @@ export const LoginModal = ({ onClose, onSuccess }) => {
             const result = await login({ email, password });
             onSuccess(result);
         } catch (error) {
-            alert(error.message);
+            alert(JSON.stringify(error));
         }
     };
 
